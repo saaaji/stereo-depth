@@ -3,8 +3,9 @@ import cv2
 import numpy as np
 import time
 import re
+import yaml
 
-# test
+OUT_FNAME = 'intrinsics_out.yaml'
 
 def capture(frame: np.ndarray):
     pass
@@ -62,8 +63,18 @@ def main():
             break
         
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        ret, corners = cv2.findChessboardCorners(gray, (args.width, args.len), None)
+        scaleFactor = 4
+        grayDownscale = cv2.resize(
+            gray, 
+            None, 
+            fx=1/scaleFactor, 
+            fy=1/scaleFactor, 
+            interpolation=cv2.INTER_LINEAR)
+        
+        ret, corners = cv2.findChessboardCorners(grayDownscale, (args.width, args.len), None)
+        
         if ret:
+            corners *= scaleFactor
             corners = cv2.cornerSubPix(
                 gray, corners, (5, 5), (-1, -1),
                 (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
@@ -89,10 +100,18 @@ def main():
         print(f'computing intrinsics with {len(imagePoints)} frames...')
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objectPoints, imagePoints, (cap_width, cap_height), None, None)
         
-        
+        output = {
+            'cameraMat': mtx.tolist(),
+            'distCoeffs': dist.tolist()
+        }
 
         print(mtx)
         print(dist)
+
+        with open(OUT_FNAME, 'w+') as outfile:
+            yaml.dump(output, outfile)
+            print(f'output intrinsics written to \'{OUT_FNAME}\'')
+
     else:
         print('no checkerboard found. exiting...')
     
