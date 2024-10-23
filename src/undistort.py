@@ -21,7 +21,7 @@ def main():
     cap = cv2.VideoCapture(args.src, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_MODE, 1)
 
-
+    '''
     dev=usb.core.find(idVendor=0x2560, idProduct=0xc128) #lsusb to list attached devices in case your id's are different. 
     #print(dev) #uncomment to see the configuration tree. 
     #Follow the tree: dev[0] = configuration 1. 
@@ -72,7 +72,7 @@ def main():
     cap.set(cv2.CAP_PROP_EXPOSURE, 0.03)
     cap.set(cv2.CAP_PROP_AUTO_WB, 1)
     # cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 6000)
-
+    '''
     
     if not cap.isOpened():
         print(f'cannot open camera \'{args.src}\'. exiting...')
